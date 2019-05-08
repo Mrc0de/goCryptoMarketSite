@@ -28,7 +28,8 @@ func main() {
 	<- c
 	// Tell WWW to shutdown
 	quit <- "Shutdown"
-	// Wait for it to finish and return any string (which we will ignore)
+
+	// Wait for Services to finish and return any string (which we will ignore)
 	logger.Println("[WWW Service] " + <- quit )
-	logger.Println("GoodBye.")
+	logger.Println("[goCryptoMarketSite] GoodBye.")
 }
