@@ -29,6 +29,6 @@ func main() {
 	// Tell WWW to shutdown
 	quit <- "Shutdown"
 	// Wait for it to finish and return any string (which we will ignore)
-	logger.Println(<- quit)
+	logger.Println("[WWW Service] " + <- quit )
 	logger.Println("GoodBye.")
 }
