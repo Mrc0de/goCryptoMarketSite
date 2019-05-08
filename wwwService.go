@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 type wwwServiceConfiguration struct {
@@ -18,14 +19,21 @@ func startWWWService(channel chan string) {
 	if err != nil { channel <- "Could Not Start WWW Server: " + err.Error(); return}
 	logger.Printf("*** Starting WWW Service on %s:%d [Redirect From %d]\r\n",webConfig.Ip,webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
 	// Do stuff, catch quit
-
-	// shutdown
-	shutdownWWWService(channel)
+	for true {
+		select {
+			case v := <-channel:
+				logger.Printf("[WWW Service] Signal Received: %s",v)
+				if strings.EqualFold(v,"Shutdown") {
+					shutdownWWWService(channel,webConfig)
+				}
+			default:
+		}
+	}
 }
 
-func shutdownWWWService(channel chan string) {
-	logger.Printf("*** Shutting Down WWW Service on \r\n")
-	channel <- "Goodbye"
+func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
+	logger.Printf("*** Shutting Down WWW Service on %s:%d [Redirect From %d]\r\n",webConfig.Ip,webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
+	channel <- "Fine."
 }
 
 // Config
