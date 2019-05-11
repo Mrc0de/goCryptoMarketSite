@@ -10,9 +10,7 @@ import (
 
 //////////
 // Startup
-func startWWWService(channel chan string) {
-	webConfig,err := loadConfig()
-	if err != nil { channel <- "Could Not Start WWW Server: " + err.Error(); return}
+func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 	logger.Printf("*** Starting WWW Service on %s:%d [Redirect From %d]\r\n",webConfig.Ip,
 								webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
 	// Do stuff, catch quit
@@ -20,10 +18,10 @@ func startWWWService(channel chan string) {
 	r.HandleFunc("/",wwwHome)
 
 	/////////////
+	go startSecure(webConfig,r)
 	go startInsecure(webConfig)
 	/////////////
-	go startSecure(webConfig,r)
-	/////////////
+
 	for  {
 		select {
 			case v := <-channel:
@@ -36,11 +34,13 @@ func startWWWService(channel chan string) {
 	}
 }
 
+
 ////////////////
 // StartInsecure
 func startInsecure(webConfig wwwServiceConfiguration){
 	// This STARTS the redirect to securePort.
 	// If this fails, we will exit the application (Panic)
+	logger.Printf("Starting Insecure Port Redirect To Secure Port Listener...")
 	err := http.ListenAndServe(webConfig.Ip + ":" + strconv.Itoa(webConfig.InsecurePortNumber),
 		http.HandlerFunc(func(w http.ResponseWriter,req *http.Request){
 			logger.Printf("[%s] Redirecting %s from %s to %s",req.RequestURI,req.RemoteAddr,
@@ -52,11 +52,14 @@ func startInsecure(webConfig wwwServiceConfiguration){
 		logger.Panic("Quitting.")
 	}
 }
+
+
 //////////////
 // StartSecure
 func startSecure(webConfig wwwServiceConfiguration,r *mux.Router){
 	// This STARTS the actual secure server (using the configured cert/key combo)
 	// If this fails, we will exit the application (Panic)
+	logger.Printf("Starting Secure Port Listener...")
 	err := http.ListenAndServeTLS(webConfig.Ip+ ":" + strconv.Itoa(webConfig.SecurePortNumber),webConfig.CertFile,
 		webConfig.KeyFile,r)
 	if err != nil {
@@ -64,6 +67,7 @@ func startSecure(webConfig wwwServiceConfiguration,r *mux.Router){
 		logger.Panic("Quitting.")
 	}
 }
+
 
 ///////////
 // Shutdown
@@ -73,10 +77,14 @@ func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 	channel <- "Fine."
 }
 
+
 ///////////
 // Home "/"
 func wwwHome(w http.ResponseWriter, r *http.Request) {
 	logger.Printf("[%s] %s %s",r.RequestURI,r.Method,r.RemoteAddr)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("w00t! - Secure"))
+	intRet,err := w.Write([]byte("w00t! - Secure"))
+	if err != nil {
+		logger.Printf("Error Writing reply to [%s]: [%d] %s",r.RemoteAddr,intRet,err)
+	}
 }
