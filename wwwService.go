@@ -20,13 +20,9 @@ func startWWWService(channel chan string) {
 	r.HandleFunc("/",wwwHome)
 
 	/////////////
-	go http.ListenAndServe(webConfig.Ip + ":" + strconv.Itoa(webConfig.InsecurePortNumber),
-		http.HandlerFunc(func(w http.ResponseWriter,r *http.Request){
-			http.Redirect(w,r,"https://"+r.Host+r.URL.String(),http.StatusMovedPermanently)
-	}))
+	go startInsecure(webConfig)
 	/////////////
-	go http.ListenAndServeTLS(webConfig.Ip+ ":" + strconv.Itoa(webConfig.SecurePortNumber),webConfig.CertFile,
-		webConfig.KeyFile,r)
+	go startSecure(webConfig,r)
 	/////////////
 	for  {
 		select {
@@ -40,6 +36,34 @@ func startWWWService(channel chan string) {
 	}
 }
 
+////////////////
+// StartInsecure
+func startInsecure(webConfig wwwServiceConfiguration){
+	// This STARTS the redirect to securePort.
+	// If this fails, we will exit the application (Panic)
+	err := http.ListenAndServe(webConfig.Ip + ":" + strconv.Itoa(webConfig.InsecurePortNumber),
+		http.HandlerFunc(func(w http.ResponseWriter,req *http.Request){
+			logger.Printf("[%s] Redirecting %s from %s to %s",req.RequestURI,req.RemoteAddr,
+									strconv.Itoa(webConfig.InsecurePortNumber),strconv.Itoa(webConfig.SecurePortNumber))
+			http.Redirect(w,req,"https://"+req.Host+req.URL.String(),http.StatusSeeOther)
+	}))
+	if err != nil {
+		logger.Printf("Error Starting Insecure Port Redirect to Secure Port Listener: %s",err);
+		logger.Panic("Quitting.")
+	}
+}
+//////////////
+// StartSecure
+func startSecure(webConfig wwwServiceConfiguration,r *mux.Router){
+	// This STARTS the actual secure server (using the configured cert/key combo)
+	// If this fails, we will exit the application (Panic)
+	err := http.ListenAndServeTLS(webConfig.Ip+ ":" + strconv.Itoa(webConfig.SecurePortNumber),webConfig.CertFile,
+		webConfig.KeyFile,r)
+	if err != nil {
+		logger.Printf("Error Starting Secure Port Listener: %s",err);
+		logger.Panic("Quitting.")
+	}
+}
 
 ///////////
 // Shutdown
