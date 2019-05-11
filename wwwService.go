@@ -10,7 +10,7 @@ import (
 	"strings"
 	"github.com/gorilla/mux"
 )
-l
+
 type wwwServiceConfiguration struct {
 	Ip	string					`json:"ip"`
 	SecurePortNumber int		`json:"secureportnumber"`	// (ie: 443)
@@ -58,6 +58,8 @@ func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 
 // Config
 func loadConfig() (wwwServiceConfiguration,error) {
+	// There is a bug in how I do this,
+	// Total Fail if the file isn't found, for now, just make sure it exists (and is filled in)
 	// Check current directory for ./goCryptoMarketSite.json
 	checkFile,err := fileExists("goCryptoMarketSite.json")
 	if err != nil { return wwwServiceConfiguration{},err }
