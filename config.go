@@ -12,6 +12,9 @@ type wwwServiceConfiguration struct {
 	InsecurePortNumber int 		`json:"insecureportnumber"`	// This will ALWAYS be redirected to SecurePortNumber
 	CertFile string				`json:"certfile"`
 	KeyFile	string				`json:"keyfile"`
+	WWWServiceHostname string	`json:"wwwservicehostname"`	// Required, Ignore all requests not for this hostname
+															// This will eventually become a list to support multiple hostnames
+
 }
 
 // Config
