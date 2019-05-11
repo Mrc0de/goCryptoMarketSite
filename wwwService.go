@@ -45,7 +45,7 @@ func startInsecure(webConfig wwwServiceConfiguration){
 		http.HandlerFunc(func(w http.ResponseWriter,req *http.Request){
 			logger.Printf("[%s] Redirecting %s from %s to %s",req.RequestURI,req.RemoteAddr,
 									strconv.Itoa(webConfig.InsecurePortNumber),strconv.Itoa(webConfig.SecurePortNumber))
-			http.Redirect(w,req,"https://"+req.Host+req.URL.String(),http.StatusSeeOther)
+			http.Redirect(w,req,"https://"+req.Host+req.URL.String(),http.StatusSeeOther) // 303 doesnt get cached (usually)
 	}))
 	if err != nil {
 		logger.Printf("Error Starting Insecure Port Redirect to Secure Port Listener: %s",err);
