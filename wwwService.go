@@ -98,6 +98,7 @@ func fileExists(path string) (bool, error) {
 }
 
 func wwwHome(w http.ResponseWriter, r *http.Request) {
+	logger.Printf("[%s] %s %s",r.RequestURI,r.Method,r.RemoteAddr)
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("w00t - Secure"))
+	w.Write([]byte("w00t! - Secure"))
 }
