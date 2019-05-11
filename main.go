@@ -21,7 +21,7 @@ func main() {
 	wwwConfig,err := loadConfig()
 	if err != nil {
 		// bail out
-		logger.Printf("Cannot Start wwwService: %s", err
+		logger.Printf("Cannot Start wwwService: %s", err)
 		logger.Panic("Quitting.")
 	}
 	go startWWWService(quit,wwwConfig)
