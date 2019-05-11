@@ -1,24 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"errors"
-	"io/ioutil"
+	"github.com/gorilla/mux"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
-	"github.com/gorilla/mux"
 )
 
-type wwwServiceConfiguration struct {
-	Ip	string					`json:"ip"`
-	SecurePortNumber int		`json:"secureportnumber"`	// (ie: 443)
-	InsecurePortNumber int 		`json:"insecureportnumber"`	// This will ALWAYS be redirected to SecurePortNumber
-	CertFile string				`json:"certfile"`
-	KeyFile	string				`json:"keyfile"`
-}
 
+//////////
+// Startup
 func startWWWService(channel chan string) {
 	webConfig,err := loadConfig()
 	if err != nil { channel <- "Could Not Start WWW Server: " + err.Error(); return}
@@ -36,8 +27,7 @@ func startWWWService(channel chan string) {
 	/////////////
 	go http.ListenAndServeTLS(webConfig.Ip+ ":" + strconv.Itoa(webConfig.SecurePortNumber),webConfig.CertFile,
 		webConfig.KeyFile,r)
-
-
+	/////////////
 	for  {
 		select {
 			case v := <-channel:
@@ -50,53 +40,17 @@ func startWWWService(channel chan string) {
 	}
 }
 
+
+///////////
+// Shutdown
 func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 	logger.Printf("*** Shutting Down WWW Service on %s:%d [Redirect From %d]\r\n",webConfig.Ip,
 							webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
 	channel <- "Fine."
 }
 
-// Config
-func loadConfig() (wwwServiceConfiguration,error) {
-	// There is a bug in how I do this,
-	// Total Fail if the file isn't found, for now, just make sure it exists (and is filled in)
-	// Check current directory for ./goCryptoMarketSite.json
-	checkFile,err := fileExists("goCryptoMarketSite.json")
-	if err != nil { return wwwServiceConfiguration{},err }
-	// Check /etc/goCryptoMarketSite.json
-	if checkFile {
-		// Load and Return
-		logger.Println("Loading ./goCryptoMarketSite.json")
-		file,_ := ioutil.ReadFile("goCryptoMarketSite.json")
-        conf := wwwServiceConfiguration{}
-        err := json.Unmarshal([]byte(string(file)), &conf)
-        if err != nil { return wwwServiceConfiguration{},err }
-        return conf,nil
-	} else {
-		checkEtc, err := fileExists("/etc/goCryptoMarketSite.json")
-		if err != nil { return wwwServiceConfiguration{}, err }
-		if checkEtc {
-			// Load and Return
-			logger.Println("Loading /etc/goCryptoMarketSite.json")
-			file,_ := ioutil.ReadFile("/etc/goCryptoMarketSite.json")
-			conf := wwwServiceConfiguration{}
-			json.Unmarshal([]byte(string(file)), &conf)
-			if err != nil { return wwwServiceConfiguration{},err }
-			return conf,nil
-		}
-	}
-	logger.Printf("Never")
-	return wwwServiceConfiguration{}, errors.New("This Should Never Happen.")
-}
-
-// Misc
-func fileExists(path string) (bool, error) {
-    _, err := os.Stat(path)
-    if err == nil { return true, nil }
-    if os.IsNotExist(err) { return false, errors.New("FileNotFound") }
-    return false, err
-}
-
+///////////
+// Home "/"
 func wwwHome(w http.ResponseWriter, r *http.Request) {
 	logger.Printf("[%s] %s %s",r.RequestURI,r.Method,r.RemoteAddr)
 	w.WriteHeader(http.StatusOK)
