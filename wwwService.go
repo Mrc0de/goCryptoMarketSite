@@ -8,11 +8,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	//"strings"
 	"github.com/gorilla/mux"
 )
-
+l
 type wwwServiceConfiguration struct {
 	Ip	string					`json:"ip"`
 	SecurePortNumber int		`json:"secureportnumber"`	// (ie: 443)
