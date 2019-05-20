@@ -3,7 +3,7 @@
     body {
         padding: 0px;
         margin: 0px;
-        background-color: black;
+        background-color: black !important;
     }
     #page {
         min-height:99vh;
@@ -24,32 +24,45 @@
 {{end}}
 {{template "header" .}}
     <div id="page">
-        <div id="topBar">
-            <img src="imgs/goCryptoLogo.png" />
-        </div>
+        <div id="topBar"></div>
         <div id="contents"></div>
     </div>
+
+    <script type="text/x-template" id="topBarTemplate">
+        <div id="topBar">
+            <img src="imgs/goCryptoLogo.png"/> Hello [[userName]]
+        </div>
+    </script>
 
     <script>
         let defaultTicker = null;
 
         // Top Bar Vue
-        // let topBarV = new Vue({
-        //     el:"#topBar",
-        //     data: {
-        //     },
-        //     methods: {
-        //     }
-        // });
-        //
-        // // Contents Vue
-        // let contentsV = new Vue({
-        //     el:"#contents",
-        //     data: {
-        //     },
-        //     methods: {
-        //     }
-        // });
+        let topBarV = new Vue({
+            el:"#topBar",
+            template:"#topBarTemplate",
+            data: {
+                tickerTypes: ["BTC","LTC","ETH"],
+                tickerPrices: [{ "type":"BTC", "price": 0},{ "type":"ETH", "price": 0},{ "type":"LTC", "price": 0}],
+                hasSession: false,
+                isLoggedIn: false,
+                hasOath: false,
+                userName: "Anony" + (Math.floor(Math.random() * Math.floor(9001))).toString(),
+            },
+            methods: {
+
+            },
+            delimiters: ["[[","]]"],
+        });
+
+        // Contents Vue
+        let contentsV = new Vue({
+            el:"#contents",
+            data: {
+            },
+            methods: {
+            }
+        });
 
         // Utilities
         function isDef(thing) {
