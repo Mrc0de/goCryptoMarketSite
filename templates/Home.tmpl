@@ -16,6 +16,8 @@
         min-width: 100%;
         background-color: black;
         border-bottom: thin groove slategray;
+        display: grid;
+        grid-template-columns: 10% 10% 10% 10% 25% 15% 10% 10%;
     }
     #topBar img {
         max-height: 2em;
@@ -30,7 +32,14 @@
 
     <script type="text/x-template" id="topBarTemplate">
         <div id="topBar">
-            <img src="imgs/goCryptoLogo.png"/> Hello [[userName]]
+            <img src="imgs/goCryptoLogo.png" class="mx-auto"/>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <i class="mx-auto text-light">[[userName]]</i>
         </div>
     </script>
 
