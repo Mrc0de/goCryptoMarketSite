@@ -1,0 +1,59 @@
+{{define "pageStyle"}}
+<style>
+    body {
+        padding: 0px;
+        margin: 0px;
+        background-color: black;
+    }
+    #page {
+        min-height:99vh;
+        border:none;
+        max-width:100%;
+    }
+    #topBar {
+        height:2em;
+        min-width: 100%;
+        background-color: black;
+        border-bottom: thin groove slategray;
+    }
+    #topBar img {
+        max-height: 2em;
+    }
+</style>
+{{end}}
+{{template "header" .}}
+    <div id="page">
+        <div id="topBar">
+            <img src="imgs/goCryptoLogo.png" />
+        </div>
+        <div id="contents"></div>
+    </div>
+
+    <script>
+        let defaultTicker = null;
+
+        // Top Bar Vue
+        // let topBarV = new Vue({
+        //     el:"#topBar",
+        //     data: {
+        //     },
+        //     methods: {
+        //     }
+        // });
+        //
+        // // Contents Vue
+        // let contentsV = new Vue({
+        //     el:"#contents",
+        //     data: {
+        //     },
+        //     methods: {
+        //     }
+        // });
+
+        // Utilities
+        function isDef(thing) {
+            if ( typeof thing == "undefined" || thing == null) { return false; }
+            return true;
+        }
+    </script>
+{{template "footer" .}}

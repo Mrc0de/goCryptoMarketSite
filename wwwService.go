@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -16,6 +17,9 @@ func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 	// Do stuff, catch quit
 	r := mux.NewRouter()
 	r.HandleFunc("/",wwwHome)
+
+	// Image Content
+	r.PathPrefix("/imgs/").Handler(http.StripPrefix("/imgs/", http.FileServer(http.Dir("./imgs/"))))
 
 	/////////////
 	go startSecure(webConfig,r)
@@ -82,9 +86,7 @@ func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 // Home "/"
 func wwwHome(w http.ResponseWriter, r *http.Request) {
 	logger.Printf("[%s] %s %s",r.RequestURI,r.Method,r.RemoteAddr)
-	w.WriteHeader(http.StatusOK)
-	intRet,err := w.Write([]byte("w00t! - Secure"))
-	if err != nil {
-		logger.Printf("Error Writing reply to [%s]: [%d] %s",r.RemoteAddr,intRet,err)
-	}
+	tmpl := template.Must(template.ParseFiles("templates/Home.tmpl","templates/Base.tmpl"))
+	err := tmpl.Execute(w,nil)
+	if err != nil { logger.Printf("Error Parsing Template: %s",err) }
 }
