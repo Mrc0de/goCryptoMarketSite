@@ -16,10 +16,9 @@ func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 								webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
 	// Do stuff, catch quit
 	r := mux.NewRouter()
-	r.HandleFunc("/",wwwHome)
-
-	// Image Content
 	r.PathPrefix("/imgs/").Handler(http.StripPrefix("/imgs/", http.FileServer(http.Dir("./imgs/"))))
+	r.HandleFunc("/",wwwHome)
+	// Image Content
 
 	/////////////
 	go startSecure(webConfig,r)
