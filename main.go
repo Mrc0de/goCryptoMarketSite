@@ -31,12 +31,21 @@ func main() {
 	signal.Notify(c, os.Interrupt)
 	logger.Println("WWW Service Started.")
 
-	// Wait for Ctrl-C
-	<- c
-	// Tell WWW to shutdown
-	quit <- "Shutdown"
-
-	// Wait for Services to finish and return any string (which we will ignore)
-	logger.Println("[WWW Service] " + <- quit )
-	logger.Println("[goCryptoMarketSite] GoodBye.")
+	// Select for channel signals on each active channel
+	for  {
+		select {
+		case v := <- c:
+			// Wait for Ctrl-C
+			logger.Printf("[Control-C] Signal Received: %s",v)
+			// Shut it all down
+			// Tell WWWService to Shutdown
+			quit <- "Shutdown"
+			// Wait for Services to finish and return any string (which we will ignore)
+			logger.Println("[WWW Service] " + <- quit )
+			logger.Println("[goCryptoMarketSite] GoodBye.")
+			os.Exit(0)
+		default:
+		}
+	}
+	logger.Println("-- Break --")
 }
