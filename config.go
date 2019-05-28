@@ -13,7 +13,8 @@ type wwwServiceConfiguration struct {
 	CertFile string				`json:"certfile"`
 	KeyFile	string				`json:"keyfile"`
 	WWWServiceHostname string	`json:"wwwservicehostname"`	// Required, Ignore all requests not for this hostname (or www.hostname )
-															// This will eventually become a list to support multiple hostnames
+																// This will eventually become a list to support multiple hostnames
+	WebSocketPath	string	`json:"websocketpath"`				// Where to send requests for a WS upgrade ie:"/live"
 }
 
 // Config

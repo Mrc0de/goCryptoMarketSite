@@ -18,29 +18,55 @@
         border-bottom: thin groove slategray;
         display: grid;
         grid-template-columns: 10% 10% 10% 10% 25% 5% 10% 10% 10%;
+        font-size: 1.5vmin !important;
+    }
+    #topBar > div {
+        text-align:center !important;
+        align-content: center;
+        align-items: center;
+    }
+    #graphBar {
+        height:8em;
+        min-width:100%;
+        display: grid;
+        grid-template-columns: 20% 20% 20% 20% 20%;
+    }
+    #graphBar > div {
+        border:thin solid white;
+        color: white;
+        text-align: center;
     }
     #topBar img {
         max-height: 2em;
     }
+
 </style>
 {{end}}
 {{template "header" .}}
     <div id="page">
         <div id="topBar"></div>
-        <div id="contents"></div>
+        <div id="contents">
+            <div id="graphBar">
+                <div>BTC-USD</div>
+                <div>LTC-USD</div>
+                <div>ETH-USD</div>
+                <div>Gold</div>
+                <div>Silver</div>
+            </div>
+        </div>
     </div>
 
     <script type="text/x-template" id="topBarTemplate">
         <div id="topBar">
-            <img src="imgs/goCryptoLogo.png" class="mx-auto"/>
+            <img src="imgs/goCryptoLogo.png" class=""/>
             <div></div>
             <div></div>
             <div></div>
             <div></div>
             <div></div>
-            <i class="mx-auto text-light">[[userName]]</i>
-            <a href="/signup" class="mx-auto text-light">Register Free</a>
-            <a href="/login" class="mx-auto text-light">Login</a>
+            <i class="text-light">[[userName]]</i>
+            <a href="/signup" class="text-light">Register Free</a>
+            <a href="/login" class="text-light">Login</a>
         </div>
     </script>
 
@@ -57,7 +83,7 @@
                 hasSession: false,
                 isLoggedIn: false,
                 hasOath: false,
-                userName: "Anon" + (Math.floor(Math.random() * Math.floor(9001))).toString(),
+                userName: "Anon" + (Math.floor(Math.random() * Math.floor(999999))).toString(),
             },
             methods: {
 
