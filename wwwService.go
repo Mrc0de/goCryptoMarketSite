@@ -16,14 +16,16 @@ func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 								webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
 	// Do stuff, catch quit
 	r := mux.NewRouter()
+	go r.HandleFunc("/live",websocketUpgrade)		// defined in websocketService.go (ie: Service vs Client)
+	logger.Println("*** Starting WebSocket Service on WWWService at /live")
 	r.PathPrefix("/imgs/").Handler(http.StripPrefix("/imgs/", http.FileServer(http.Dir("./imgs/"))))
 	r.HandleFunc("/",wwwHome)
-	// Image Content
 
-	/////////////
+	// Image Content
+	////////////////
 	go startSecure(webConfig,r)
 	go startInsecure(webConfig)
-	/////////////
+	///////////////////////////
 
 	for  {
 		select {

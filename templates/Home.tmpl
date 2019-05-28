@@ -32,7 +32,7 @@
         grid-template-columns: 20% 20% 20% 20% 20%;
     }
     #graphBar > div {
-        border:thin solid white;
+        border:thin inset white;
         color: white;
         text-align: center;
     }
@@ -40,19 +40,33 @@
         max-height: 2em;
     }
 
+    #wsCommPanel {
+        width:100%;
+        margin-top: 2em;
+    }
+
+    #wsCommPanel > textarea {
+        min-height: 25vh;
+    }
+
+    #wsCommPanel > textarea, input {
+        width: 90%;
+        border-radius: 0.25em;
+        background-color: darkgray;
+        color: white;
+    }
+    @media only screen and (max-width: 767px) {
+        /* Decent Phones */
+
+    }
 </style>
 {{end}}
 {{template "header" .}}
     <div id="page">
         <div id="topBar"></div>
         <div id="contents">
-            <div id="graphBar">
-                <div>BTC-USD</div>
-                <div>LTC-USD</div>
-                <div>ETH-USD</div>
-                <div>Gold</div>
-                <div>Silver</div>
-            </div>
+            <div id="graphBar"></div>
+            <div id="wsCommPanel"></div>
         </div>
     </div>
 
@@ -70,6 +84,24 @@
         </div>
     </script>
 
+    <script type="text/x-template" id="graphBarTemplate">
+        <div id="graphBar">
+            <div>BTC-USD</div>
+            <div>LTC-USD</div>
+            <div>ETH-USD</div>
+            <div>Gold</div>
+            <div>Silver</div>
+        </div>
+    </script>
+
+    <script type="text/x-template" id="wsCommPanelTemplate">
+        <div id="wsCommPanel" class="text-center">
+            <textarea id="wsCommOutput" DISABLED>Connecting to GeekProjex.com</textarea>
+            <input type="text" id="wsCommInput" placeholder="Type Here" />
+        </div>
+    </script>
+
+
     <script>
         let defaultTicker = null;
 
@@ -84,6 +116,7 @@
                 isLoggedIn: false,
                 hasOath: false,
                 userName: "Anon" + (Math.floor(Math.random() * Math.floor(999999))).toString(),
+                WSConnected: false,
             },
             methods: {
 
@@ -91,19 +124,65 @@
             delimiters: ["[[","]]"],
         });
 
-        // Contents Vue
-        let contentsV = new Vue({
-            el:"#contents",
+        //graphBar Vue
+        let graphBarV = new Vue({
+            el:"#graphBar",
+            template:"#graphBarTemplate",
             data: {
             },
             methods: {
             }
         });
 
+        //wsCommPanel Vue
+        let wsCommPanelV = new Vue({
+            el:"#wsCommPanel",
+            template:"#wsCommPanelTemplate",
+            data: {
+            },
+            methods: {
+            }
+        });
+
+        // Contents Vue
+        // let contentsV = new Vue({
+        //     el:"#contents",
+        //     data: {
+        //     },
+        //     methods: {
+        //     }
+        // });
+
         // Utilities
         function isDef(thing) {
             if ( typeof thing == "undefined" || thing == null) { return false; }
             return true;
         }
+
+        $(function(){
+            // Startup
+            const socket = new WebSocket('wss://localhost/live');
+            wsSetup(socket);
+        });
+
+        function wsSetup(socket) {
+            // Websocket Setup
+            socket.addEventListener('open', function (event) {
+                socket.send('Hello Server!');
+                topBarV.WSConnected = true;
+            });
+            socket.addEventListener('message', function (event) {
+                console.log('Message from server ', event.data);
+            });
+            socket.addEventListener('close', function (event) {
+                console.log('Disconnected from server ', event.data);
+                topbarV.WSConnected = false;
+            });
+            socket.addEventListener('error', function (event) {
+                console.log('Error from server ', event.data);
+                topbarV.WSConnected = false;
+            });
+        }
+
     </script>
 {{template "footer" .}}
