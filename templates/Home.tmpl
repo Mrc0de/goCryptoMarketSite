@@ -104,7 +104,7 @@
 
     <script>
         let defaultTicker = null;
-
+        let socket = new WebSocket('wss://' + {{.WsHost}} + "/ws");
         // Top Bar Vue
         let topBarV = new Vue({
             el:"#topBar",
@@ -161,27 +161,33 @@
 
         $(function(){
             // Startup
-            const socket = new WebSocket('wss://localhost/live');
             wsSetup(socket);
+            console.log("WS Setup!");
         });
 
         function wsSetup(socket) {
             // Websocket Setup
             socket.addEventListener('open', function (event) {
-                socket.send('Hello Server!');
+                console.log("Connected!");
                 topBarV.WSConnected = true;
             });
             socket.addEventListener('message', function (event) {
                 console.log('Message from server ', event.data);
             });
             socket.addEventListener('close', function (event) {
-                console.log('Disconnected from server ', event.data);
-                topbarV.WSConnected = false;
+                console.log('Disconnected from server ', event);
+                topBarV.WSConnected = false;
             });
             socket.addEventListener('error', function (event) {
                 console.log('Error from server ', event.data);
-                topbarV.WSConnected = false;
+                topBarV.WSConnected = false;
             });
+            $("#wsCommInput").on("keypress",function(e){
+                if (e.which == 13) {
+                    socket.send($("#wsCommInput").val());
+                    console.log($("#wsCommInput").val());
+                }
+            })
         }
 
     </script>

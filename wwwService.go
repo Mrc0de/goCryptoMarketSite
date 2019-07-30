@@ -14,10 +14,13 @@ import (
 func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 	logger.Printf("*** Starting WWW Service on %s:%d [Redirect From %d]\r\n",webConfig.Ip,
 								webConfig.SecurePortNumber,webConfig.InsecurePortNumber)
-	// Do stuff, catch quit
+	hub := newWsHub()
+	go hub.run()
 	r := mux.NewRouter()
-	go r.HandleFunc("/live",websocketUpgrade)		// defined in websocketService.go (ie: Service vs Client)
-	logger.Println("*** Starting WebSocket Service on WWWService at /live")
+	r.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		websocketUpgrade(hub, w, r)
+	})
+	logger.Println("*** Starting WebSocket Service on WWWService at /ws")
 	r.PathPrefix("/imgs/").Handler(http.StripPrefix("/imgs/", http.FileServer(http.Dir("./imgs/"))))
 	r.HandleFunc("/",wwwHome)
 
@@ -29,12 +32,15 @@ func startWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 
 	for  {
 		select {
-			case v := <-channel:
-				logger.Printf("[WWW Service] Signal Received: %s",v)
-				if strings.EqualFold(v,"Shutdown") {
-					shutdownWWWService(channel,webConfig)
+			case v := <-channel: {
+				logger.Printf("[WWW Service] Signal Received: %s", v)
+				if strings.EqualFold(v, "Shutdown") {
+					shutdownWWWService(channel, webConfig)
 				}
-			default:
+			}
+			default: {
+				//
+			}
 		}
 	}
 }
@@ -86,8 +92,12 @@ func shutdownWWWService(channel chan string,webConfig wwwServiceConfiguration) {
 ///////////
 // Home "/"
 func wwwHome(w http.ResponseWriter, r *http.Request) {
+	var data struct {
+		WsHost string
+	}
+	data.WsHost = r.Host
 	logger.Printf("[%s] %s %s",r.RequestURI,r.Method,r.RemoteAddr)
 	tmpl := template.Must(template.ParseFiles("templates/Home.tmpl","templates/Base.tmpl"))
-	err := tmpl.Execute(w,nil)
+	err := tmpl.Execute(w,&data)
 	if err != nil { logger.Printf("Error Parsing Template: %s",err) }
 }
